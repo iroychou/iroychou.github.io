@@ -94,16 +94,16 @@
 
 
 
-<meta name="description" content="如果你真的愿意去努力，人生最坏的结果，也不过是大器晚成。">
+<meta name="description" content="内心仰望理想的人，都在低头干活。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Roy&#39;s Blog">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="Roy&#39;s Blog">
-<meta property="og:description" content="如果你真的愿意去努力，人生最坏的结果，也不过是大器晚成。">
+<meta property="og:description" content="内心仰望理想的人，都在低头干活。">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Roy&#39;s Blog">
-<meta name="twitter:description" content="如果你真的愿意去努力，人生最坏的结果，也不过是大器晚成。">
+<meta name="twitter:description" content="内心仰望理想的人，都在低头干活。">
 
 
 
@@ -263,12 +263,151 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Roy">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="http://coderroy.gitee.io/asset/imagehosting/header.JPG">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Roy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/" itemprop="url">Mac环境下配置Java环境:安装及配置JDK</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-29T17:40:06+08:00">
+                2019-06-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="JDK下载"><a href="#JDK下载" class="headerlink" title="JDK下载"></a>JDK下载</h3><p><a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html" target="_blank" rel="noopener">官网</a>下载jdk,这里的版本是12.0.1,然后一步一步按提示安装。<br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_download_url.png"></p>
+<p>安装成功之后按照下面的路径可以找到安装好的jdk:<code>/Library/Java/JavaVirtualMachines/jdk-12.0.1.jdk</code><br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_installed_path.png"></p>
+<p>该jdk的根目录为<code>Contents</code>下的<code>Home</code>文件夹:<br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_homepath.png"></p>
+<!-- 其中:
+
+* `bin`:    存放JDK用于开发的一些终端命令工具；
+* `include`:    存放C语言的头文件；
+* `lib`:    存放JDK开发工具所依赖的一些库文件；
+* `man`:    存放JDK开发工具的说明文档。-->
+<h3 id="JDK环境变量配置"><a href="#JDK环境变量配置" class="headerlink" title="JDK环境变量配置"></a>JDK环境变量配置</h3><p>打开终端并输入<code>vim ~/.bash_profile</code>，回车进入编辑模式[<code>~</code>代表使用者的home目录，该隐藏的配置文件若不存在，<code>vim</code>指令会自动创建]。输入如下内容后退出编辑模式并保存:</p>
+<blockquote>
+<p>JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-12.0.1.jdk/Contents/Home<br>PATH=$JAVA_HOME/bin:$PATH:.<br>CLASSPATH=JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar:.<br>export JAVA_HOME<br>export PATH<br>export CLASSPATH</p>
+</blockquote>
+<img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_setting.png">
+<p>至此，jdk配置完成。</p>
+<ul>
+<li>在终端输入<code>java -version</code>进行验证。</li>
+<li>输入<code>echo $JAVA_HOME</code>进行查看，结果则为刚才配置的jdk的根目录。</li>
+</ul>
+<img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_verify.png">
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/24/iOS11导航栏添加搜索框变高的问题/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="rongliang">
+      <meta itemprop="name" content="Roy">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://coderroy.gitee.io/imagehosting/asset/blog/header.JPG">
+      <meta itemprop="image" content="http://coderroy.gitee.io/asset/imagehosting/header.JPG">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -434,11 +573,11 @@
       <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="http://coderroy.gitee.io/imagehosting/asset/blog/header.JPG"
-               alt="rongliang" />
-          <p class="site-author-name" itemprop="name">rongliang</p>
+               src="http://coderroy.gitee.io/asset/imagehosting/header.JPG"
+               alt="Roy" />
+          <p class="site-author-name" itemprop="name">Roy</p>
            
-              <p class="site-description motion-element" itemprop="description">如果你真的愿意去努力，人生最坏的结果，也不过是大器晚成。</p>
+              <p class="site-description motion-element" itemprop="description">内心仰望理想的人，都在低头干活。</p>
           
         </div>
         <nav class="site-state motion-element">
@@ -446,7 +585,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives/">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -538,7 +677,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">rongliang</span>
+  <span class="author" itemprop="copyrightHolder">Roy</span>
 </div>
 
 
