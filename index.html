@@ -94,16 +94,16 @@
 
 
 
-<meta name="description" content="内心仰望理想的人，都在低头干活。">
+<meta name="description" content="前人栽树，后人乘凉。">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Roy&#39;s Blog">
 <meta property="og:url" content="http://yoursite.com/index.html">
 <meta property="og:site_name" content="Roy&#39;s Blog">
-<meta property="og:description" content="内心仰望理想的人，都在低头干活。">
+<meta property="og:description" content="前人栽树，后人乘凉。">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Roy&#39;s Blog">
-<meta name="twitter:description" content="内心仰望理想的人，都在低头干活。">
+<meta name="twitter:description" content="前人栽树，后人乘凉。">
 
 
 
@@ -263,12 +263,12 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/22/Objective-C-Runtime-类的基础数据结构/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Roy">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://coderroy.gitee.io/asset/imagehosting/header.JPG">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -282,7 +282,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/" itemprop="url">Mac环境下配置Java环境:安装及配置JDK</a></h1>
+                <a class="post-title-link" href="/2019/07/22/Objective-C-Runtime-类的基础数据结构/" itemprop="url">Objective-C Runtime:类的基础数据结构</a></h1>
         
 
         <div class="post-meta">
@@ -294,8 +294,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-29T17:40:06+08:00">
-                2019-06-29
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-22T22:54:29+08:00">
+                2019-07-22
               </time>
             
 
@@ -334,28 +334,17 @@
       
         
           
-            <h3 id="JDK下载"><a href="#JDK下载" class="headerlink" title="JDK下载"></a>JDK下载</h3><p><a href="https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html" target="_blank" rel="noopener">官网</a>下载jdk,这里的版本是12.0.1,然后一步一步按提示安装。<br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_download_url.png"></p>
-<p>安装成功之后按照下面的路径可以找到安装好的jdk:<code>/Library/Java/JavaVirtualMachines/jdk-12.0.1.jdk</code><br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_installed_path.png"></p>
-<p>该jdk的根目录为<code>Contents</code>下的<code>Home</code>文件夹:<br><img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_homepath.png"></p>
-<!-- 其中:
+          Runtime简介Objective-C是基于C语言加入了面向对象特性和消息转发机制的动态语言，这意味着它不仅需要一个编译器，还需要Runtime系统来动态创建类和对象，进行消息发送和转发。Runtime库主要做下面几件事：
 
-* `bin`:    存放JDK用于开发的一些终端命令工具；
-* `include`:    存放C语言的头文件；
-* `lib`:    存放JDK开发工具所依赖的一些库文件；
-* `man`:    存放JDK开发工具的说明文档。-->
-<h3 id="JDK环境变量配置"><a href="#JDK环境变量配置" class="headerlink" title="JDK环境变量配置"></a>JDK环境变量配置</h3><p>打开终端并输入<code>vim ~/.bash_profile</code>，回车进入编辑模式[<code>~</code>代表使用者的home目录，该隐藏的配置文件若不存在，<code>vim</code>指令会自动创建]。输入如下内容后退出编辑模式并保存:</p>
-<blockquote>
-<p>JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-12.0.1.jdk/Contents/Home<br>PATH=$JAVA_HOME/bin:$PATH:.<br>CLASSPATH=JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar:.<br>export JAVA_HOME<br>export PATH<br>export CLASSPATH</p>
-</blockquote>
-<img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_setting.png">
-<p>至此，jdk配置完成。</p>
-<ul>
-<li>在终端输入<code>java -version</code>进行验证。</li>
-<li>输入<code>echo $JAVA_HOME</code>进行查看，结果则为刚才配置的jdk的根目录。</li>
-</ul>
-<img src="/2019/06/29/Mac环境下配置Java环境-安装及配置JDK/jdk_verify.png">
-
-          
+1、封装：在这个库中，对象可以用C语言中的结构体表示，而方法可以用C函数
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2019/07/22/Objective-C-Runtime-类的基础数据结构/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -407,7 +396,7 @@
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Roy">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="http://coderroy.gitee.io/asset/imagehosting/header.JPG">
+      <meta itemprop="image" content="/images/avatar.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
@@ -495,17 +484,19 @@
       
         
           
-            <p>iOS11下导航栏添加搜索框(UISearchBar)，会导致导航栏变高，因为系统对搜索框进行了调整，解决办法就是固定搜索框的高度。代码如下:</p>
-<ul>
-<li>OC代码:</li>
-</ul>
-<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">UISearchBar</span> *searchBar = [[<span class="built_in">UISearchBar</span> alloc] init];</span><br><span class="line"><span class="comment">// 设置searchBar的相关属性</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">if</span> (@available(iOS <span class="number">11.0</span>, *)) &#123;</span><br><span class="line">    [[searchBar.heightAnchor constraintEqualToConstant:<span class="number">44.</span>f] setActive:<span class="literal">YES</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>Swift代码:</li>
-</ul>
-<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> searchBar = <span class="type">UISearchBar</span>()</span><br><span class="line"><span class="comment">// 设置searchBar的相关属性</span></span><br><span class="line"><span class="comment">// ...</span></span><br><span class="line"><span class="keyword">if</span> #available(iOS <span class="number">11.0</span>, *) &#123;</span><br><span class="line">    searchBar.heightAnchor.constraint(equalToConstant: <span class="number">44</span>).isActive = <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          iOS11下导航栏添加搜索框(UISearchBar)，会导致导航栏变高，因为系统对搜索框进行了调整，解决办法就是固定搜索框的高度。代码如下:
 
-          
+OC代码:
+
+123456UISearchBar *searchBar = [[UISearchBar alloc] init];// 设置searchB
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/10/24/iOS11导航栏添加搜索框变高的问题/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -573,11 +564,11 @@
       <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="http://coderroy.gitee.io/asset/imagehosting/header.JPG"
+               src="/images/avatar.jpg"
                alt="Roy" />
           <p class="site-author-name" itemprop="name">Roy</p>
            
-              <p class="site-description motion-element" itemprop="description">内心仰望理想的人，都在低头干活。</p>
+              <p class="site-description motion-element" itemprop="description">前人栽树，后人乘凉。</p>
           
         </div>
         <nav class="site-state motion-element">
@@ -607,7 +598,7 @@
             
             <div class="site-state-item site-state-tags">
               
-                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-count">4</span>
                 <span class="site-state-item-name">标签</span>
               
             </div>
