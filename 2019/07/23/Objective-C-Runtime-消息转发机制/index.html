@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Runtime," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="常规流程在了解了类的基础结构之后，接下来着重了解下消息转发。先定义一个类RLObject继承自NSObject，并定义一个方法-testInstanceMethod，下面是它的设计与实现： 123@interface RLObject : NSObject- (void)testInstanceMethod;@end 12345@implementation RLObject- (void)tes">
+<meta name="keywords" content="Runtime">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Objective-C Runtime:消息转发机制">
+<meta property="og:url" content="http://yoursite.com/2019/07/23/Objective-C-Runtime-消息转发机制/index.html">
+<meta property="og:site_name" content="Roy&#39;s Blog">
+<meta property="og:description" content="常规流程在了解了类的基础结构之后，接下来着重了解下消息转发。先定义一个类RLObject继承自NSObject，并定义一个方法-testInstanceMethod，下面是它的设计与实现： 123@interface RLObject : NSObject- (void)testInstanceMethod;@end 12345@implementation RLObject- (void)tes">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2019/07/23/Objective-C-Runtime-消息转发机制/method_forward.png">
+<meta property="og:updated_time" content="2019-07-23T15:16:24.410Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Objective-C Runtime:消息转发机制">
+<meta name="twitter:description" content="常规流程在了解了类的基础结构之后，接下来着重了解下消息转发。先定义一个类RLObject继承自NSObject，并定义一个方法-testInstanceMethod，下面是它的设计与实现： 123@interface RLObject : NSObject- (void)testInstanceMethod;@end 12345@implementation RLObject- (void)tes">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/23/Objective-C-Runtime-消息转发机制/method_forward.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/07/23/Objective-C-Runtime-消息转发机制/"/>
+
+
+
+
+
+  <title>Objective-C Runtime:消息转发机制 | Roy's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Roy's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/23/Objective-C-Runtime-消息转发机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ta们都喊我亮仔">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Roy's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Objective-C Runtime:消息转发机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-23T22:50:49+08:00">
+                2019-07-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Objective-C解惑/" itemprop="url" rel="index">
+                    <span itemprop="name">Objective-C解惑</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="常规流程"><a href="#常规流程" class="headerlink" title="常规流程"></a>常规流程</h1><p>在了解了类的基础结构之后，接下来着重了解下消息转发。<br>先定义一个类<code>RLObject</code>继承自<code>NSObject</code>，并定义一个方法<code>-testInstanceMethod</code>，下面是它的设计与实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">RLObject</span> : <span class="title">NSObject</span></span></span><br><span class="line">- (<span class="keyword">void</span>)testInstanceMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">RLObject</span></span></span><br><span class="line">- (<span class="keyword">void</span>)testInstanceMethod &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"call normal method"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>在<code>main.m</code>中创建<code>RLObject</code>对象，并调用<code>-testInstanceMethod</code>方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> * argv[]) &#123;</span><br><span class="line">    <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">        RLObject *obj = [[RLObject alloc] init];</span><br><span class="line">        [obj testInstanceMethod];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时控制台会打印以下信息：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call normal method</span><br></pre></td></tr></table></figure>
+<p>这是日常开发中的常规操作，此时如果将<code>RLObject.m</code>中的<code>-testInstanceMethod</code>方法的具体实现注释掉，再次运行程序，程序就会<code>crash</code>掉，并且控制台会打印一个经典的报错信息：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-[RLObject testInstanceMethod]: unrecognized selector sent to instance <span class="number">0x10070aac0</span></span><br><span class="line">*** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '-[RLObject testInstanceMethod]: unrecognized selector sent to instance 0x10070aac0'</span><br></pre></td></tr></table></figure>
+<p>但其实在抛出异常之前，还有三次机会让你可以拯救程序：</p>
+<ul>
+<li><code>Method Resolution</code></li>
+<li><code>Fast Forwarding</code></li>
+<li><code>Normal Forwarding</code></li>
+</ul>
+<h1 id="消息转发机制"><a href="#消息转发机制" class="headerlink" title="消息转发机制"></a>消息转发机制</h1><h2 id="Method-Resolution"><a href="#Method-Resolution" class="headerlink" title="Method Resolution"></a>Method Resolution</h2><p>首先如果是对象方法不存在，<code>runtime</code>会调用<code>+resolveInstanceMethod:</code>方法；如果是类方法不存在，<code>runtime</code>会调用<code>+resolveClassMethod:</code>方法（最后举例）。两个方法都是类方法，如果返回<code>YES</code>则表示可以添加一个实例方法（或者类方法）来处理这个不存在的方法，其实就是将这个方法与一个<code>C</code>函数的实现关联在一起；返回<code>NO</code>则进入到消息转发的下一步，注意后面两个步骤只针对对象方法。</p>
+<p>上面已经注释掉了<code>RLObject.m</code>中<code>-testInstanceMethod</code>方法的实现，现在在类实现中新增函数<code>void instanceMethodIMP(id, SEL)</code>，并实现方法<code>+resolveInstanceMethod:</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> instanceMethodIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"call instanceMethodIMP"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="built_in">BOOL</span>)resolveInstanceMethod:(SEL)sel &#123;</span><br><span class="line">    <span class="keyword">if</span> (sel == <span class="keyword">@selector</span>(testInstanceMethod)) &#123;</span><br><span class="line">        class_addMethod([<span class="keyword">self</span> <span class="keyword">class</span>], sel, (IMP)instanceMethodIMP, <span class="string">"v@:"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> resolveInstanceMethod:sel];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行程序，不再抛出异常，并且打印了如下信息：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call instanceMethodIMP</span><br></pre></td></tr></table></figure>
+<h2 id="Fast-Forwarding"><a href="#Fast-Forwarding" class="headerlink" title="Fast Forwarding"></a>Fast Forwarding</h2><p>到了这一步<code>runtime</code>会通过调用<code>-forwardingTargetForSelector:</code>方法来询问对象是否存在备用对象来处理这个消息，如果有则该方法返回可以处理该消息的对象；如果返回<code>nil</code>则会继续进入到下一个步骤。该方法可以应用于模拟多继承，对象内部通过把一个未知的方法交给一个实现了该方法的对象处理，而外部看起来就好像是它自己处理了一样。</p>
+<p>接下来新增一个实现了方法<code>-testInstanceMethod</code>方法的类<code>BackupObject</code>，同时注释掉<code>RLObject.m</code>中的<code>+resolveInstanceMethod:</code>方法的实现，新增<code>-forwardingTargetForSelector:</code>方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">BackupObject</span> : <span class="title">NSObject</span></span></span><br><span class="line">- (<span class="keyword">void</span>)testInstanceMethod;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">BackupObject</span></span></span><br><span class="line">- (<span class="keyword">void</span>)testInstanceMethod &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"call fast forwarding"</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">id</span>)forwardingTargetForSelector:(SEL)aSelector &#123;</span><br><span class="line">    <span class="keyword">if</span> (aSelector == <span class="keyword">@selector</span>(testInstanceMethod)) &#123;</span><br><span class="line">        <span class="keyword">return</span> [[BackupObject alloc] init];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> forwardingTargetForSelector:aSelector];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行程序，控制台会打印如下信息：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call fast forwarding</span><br></pre></td></tr></table></figure>
+<h2 id="Normal-Forwarding"><a href="#Normal-Forwarding" class="headerlink" title="Normal Forwarding"></a>Normal Forwarding</h2><p>这一步本质上跟上一步是一样的：都是切换接收消息的对象，上一步只需要返回一个可以响应的对象就可以了，而这一步需要手动将响应方法切换给备用响应对象。这一步中<code>runtime</code>首先调用<code>-methodSignatureForSelector:</code>方法来获取函数的签名（其实就是函数的参数和返回值类型信息的封装），如果返回<code>nil</code>则程序直接<code>crash</code>，抛出之前的那个<code>unrecognized selector sent to instance...</code>的异常；如果返回一个签名信息，<code>runtime</code>则会创建一个<code>NSInvocation</code>对象，并调用<code>-forwardInvocation:</code>方法。</p>
+<p>我们注释掉<code>RLObject.m</code>中的<code>-forwardingTargetForSelector:</code>方法，并实现方法<code>-methodSignatureForSelector:</code>和<code>-forwardInvocation:</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">NSMethodSignature</span> *)methodSignatureForSelector:(SEL)aSelector &#123;</span><br><span class="line">    <span class="built_in">NSMethodSignature</span> *signature = [<span class="keyword">super</span> methodSignatureForSelector:aSelector];</span><br><span class="line">    <span class="keyword">if</span> (!signature) &#123;</span><br><span class="line">        signature = [<span class="built_in">NSMethodSignature</span> signatureWithObjCTypes:<span class="string">"v@:"</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> signature;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)forwardInvocation:(<span class="built_in">NSInvocation</span> *)anInvocation &#123;</span><br><span class="line">    BackupObject *backupObj = [[BackupObject alloc] init];</span><br><span class="line">    SEL sel = anInvocation.selector;</span><br><span class="line">    <span class="keyword">if</span> ([backupObj respondsToSelector:sel]) &#123;</span><br><span class="line">        [anInvocation invokeWithTarget:backupObj];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        [<span class="keyword">self</span> doesNotRecognizeSelector:sel];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>整个消息转发流程，可以用下面的图片来概括：<br><img src="/2019/07/23/Objective-C-Runtime-消息转发机制/method_forward.png"></p>
+<p>每一个步骤对象都有机会去处理未知的消息，并且越往后，代价越大。最好的情况就是在第一步处理完，因为在这一步<code>runtime</code>会把处理方法缓存到<code>cache</code>中，后面再次遇到这个方法就不会再触发消息转发流程。第二步其实就是第三步的一个简化流程，只需要提供一个备用的处理消息的对象就行了，而第三步还需要去创建和处理一个<code>NSInvocation</code>。</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>一个未知的类方法其实与对象方法类似，只是抛出的异常信息稍有差别，我们忽略正常的流程，直接在<code>mian.m</code>中调用一个不存在的类方法<code>+testClassMethod</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> main(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> * argv[]) &#123;</span><br><span class="line">    <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">        [RLObject performSelector:<span class="keyword">@selector</span>(testClassMethod)];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时控制台会打印如下错误信息：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+[RLObject testClassMethod]: unrecognized selector sent to <span class="keyword">class</span> <span class="number">0x100003ae8</span></span><br><span class="line">*** Terminating app due to uncaught exception 'NSInvalidArgumentException', reason: '+[RLObject testClassMethod]: unrecognized selector sent to class 0x100003ae8'</span><br></pre></td></tr></table></figure>
+<p>针对这样的异常可以在消息转发的第一步做出相应的补救，在<code>RLObject.m</code>中新增函数<code>void classMethodIMP(id, SEL)</code>，并实现方法<code>+resolveClassMethod:</code></p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> classMethodIMP(<span class="keyword">id</span> <span class="keyword">self</span>, SEL _cmd) &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"call classMethodIMP"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="built_in">BOOL</span>)resolveClassMethod:(SEL)sel &#123;</span><br><span class="line">    <span class="keyword">if</span> (sel == <span class="keyword">@selector</span>(testClassMethod)) &#123;</span><br><span class="line">        class_addMethod(objc_getMetaClass(class_getName([<span class="keyword">self</span> <span class="keyword">class</span>])), sel, (IMP)classMethodIMP, <span class="string">"v@:"</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> [<span class="keyword">super</span> resolveClassMethod:sel];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>这里我们有一点是需要注意的：就是类对象调用<code>class</code>方法是无法得到<code>meta class</code>的</strong></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ul>
+<li><a href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtDynamicResolution.html#//apple_ref/doc/uid/TP40008048-CH102-SW1" target="_blank" rel="noopener">Objective-C Runtime Programming Guide</a></li>
+<li><a href="https://www.csdn.net/article/2015-07-06/2825133-objective-c-runtime/5" target="_blank" rel="noopener">深入理解Objective-C的Runtime机制</a></li>
+<li><a href="https://www.jianshu.com/p/fdd8f5225f0c" target="_blank" rel="noopener">iOS Runtime 消息转发机制原理和实际用途</a></li>
+<li>《Effective Objective-C 2.0》</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Runtime/" rel="tag"># Runtime</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/22/Objective-C-Runtime-类的基础数据结构/" rel="next" title="Objective-C Runtime:类的基础数据结构">
+                <i class="fa fa-chevron-left"></i> Objective-C Runtime:类的基础数据结构
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="ta们都喊我亮仔" />
+          <p class="site-author-name" itemprop="name">ta们都喊我亮仔</p>
+           
+              <p class="site-description motion-element" itemprop="description">前人栽树，后人乘凉。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/zhourongliang" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                    
+                      GitHub
+                    
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://weibo.com/2936966103/profile" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-weibo"></i>
+                  
+                    
+                      微博
+                    
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#常规流程"><span class="nav-number">1.</span> <span class="nav-text">常规流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#消息转发机制"><span class="nav-number">2.</span> <span class="nav-text">消息转发机制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Method-Resolution"><span class="nav-number">2.1.</span> <span class="nav-text">Method Resolution</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fast-Forwarding"><span class="nav-number">2.2.</span> <span class="nav-text">Fast Forwarding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Normal-Forwarding"><span class="nav-number">2.3.</span> <span class="nav-text">Normal Forwarding</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">2.4.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#补充"><span class="nav-number">2.5.</span> <span class="nav-text">补充</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ta们都喊我亮仔</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
